@@ -1,0 +1,10 @@
+{
+  "url": "jdbc:postgresql://localhost:5432/postgres",
+  "usuario": "postgres",
+  "clave": "tu_password",
+  "query": "SELECT 1",
+  "muestras": 1000,
+  "reintentos": 3,
+  "salto": 100,
+  "limitePool": 10
+}
