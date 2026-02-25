@@ -1,7 +1,7 @@
 {
   "url": "jdbc:postgresql://localhost:5432/postgres",
   "usuario": "postgres",
-  "clave": "123456789",
+  "clave": "maria123",
   "query": "SELECT 1",
   "muestras": 1000,
   "reintentos": 3,

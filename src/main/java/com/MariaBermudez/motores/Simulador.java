@@ -2,10 +2,6 @@ package com.MariaBermudez.motores;
 
 import com.MariaBermudez.modelos.Ajustes;
 import com.MariaBermudez.utilidades.RegistradorLog;
-import com.MariaBermudez.motores.EstrategiaConexion;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,57 +16,51 @@ public class Simulador {
     }
 
     public void ejecutar() {
-        CountDownLatch puertaDeSalida = new CountDownLatch(1);
-        AtomicInteger exitosas = new AtomicInteger(0);
-        AtomicInteger fallidas = new AtomicInteger(0);
+        int totalConsultas = ajustes.muestras();
+        CountDownLatch pestillo = new CountDownLatch(1);
+        AtomicInteger exitos = new AtomicInteger(0);
+        AtomicInteger fallos = new AtomicInteger(0);
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            for (int i = 1; i <= ajustes.muestras(); i++) {
-                int idMuestra = i;
+            for (int i = 1; i <= totalConsultas; i++) {
+                int id = i;
                 executor.submit(() -> {
                     try {
-                        puertaDeSalida.await(); // Esperan la señal
-                        realizarPrueba(idMuestra, exitosas, fallidas);
+                        pestillo.await();
+                        realizarTarea(id, exitos, fallos);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 });
             }
 
-            long inicioGlobal = System.currentTimeMillis();
-            puertaDeSalida.countDown(); // ¡Arrancan todos!
+            long inicio = System.currentTimeMillis();
+            pestillo.countDown(); // Arrancan todos los hilos
+            executor.close();    // Espera a que todos terminen
+            long fin = System.currentTimeMillis();
 
-            executor.close();
-            long finGlobal = System.currentTimeMillis();
+            // --- CÁLCULOS DE EFICACIA ---
+            double porcentajeExito = (exitos.get() * 100.0) / totalConsultas;
+            boolean esEficaz = porcentajeExito >= 80.0;
 
-            System.out.println("\n--- RESULTADOS ---");
-            System.out.println("Tiempo total: " + (finGlobal - inicioGlobal) + "ms");
-            System.out.println("Éxitos: " + exitosas.get());
-            System.out.println("Fallos: " + fallidas.get());
+            System.out.println("\n--- RESULTADOS DE ESTA RÁFAGA ---");
+            System.out.println("Consultas totales: " + totalConsultas);
+            System.out.println("Éxitos: " + exitos.get() + " | Fallos: " + fallos.get());
+            System.out.printf("Porcentaje de Éxito: %.2f%%\n", porcentajeExito);
+            System.out.println("¿Es eficaz? (min 80%): " + (esEficaz ? "Si" : "NO "));
+            System.out.println("Tiempo total: " + (fin - inicio) + "ms");
         }
     }
 
-    private void realizarPrueba(int id, AtomicInteger exitos, AtomicInteger fallos) {
-        long inicioMuestra = System.currentTimeMillis();
-        int intentosRealizados = 0;
-        boolean logrado = false;
-
-        while (intentosRealizados <= ajustes.reintentos() && !logrado) {
-            try (Connection conn = estrategia.obtenerConexion();
-                 PreparedStatement stmt = conn.prepareStatement(ajustes.query())) {
-
-                stmt.executeQuery();
-                logrado = true;
-                exitos.incrementAndGet();
-                RegistradorLog.escribir(id, "EXITOSA", System.currentTimeMillis() - inicioMuestra, intentosRealizados);
-
-            } catch (SQLException e) {
-                intentosRealizados++;
-                if (intentosRealizados > ajustes.reintentos()) {
-                    fallos.incrementAndGet();
-                    RegistradorLog.escribir(id, "FALLIDA: " + e.getMessage(), System.currentTimeMillis() - inicioMuestra, intentosRealizados - 1);
-                }
-            }
+    private void realizarTarea(int id, AtomicInteger exitos, AtomicInteger fallos) {
+        try (var conn = estrategia.obtenerConexion();
+             var stmt = conn.prepareStatement(ajustes.query())) {
+            stmt.executeQuery();
+            exitos.incrementAndGet();
+            RegistradorLog.escribir(id, "EXITO", 0, 0);
+        } catch (Exception e) {
+            fallos.incrementAndGet();
+            RegistradorLog.escribir(id, "FALLO: " + e.getMessage(), 0, 0);
         }
     }
 }
