@@ -3,8 +3,8 @@
   "usuario": "postgres",
   "clave": "maria123",
   "query": "SELECT 1",
-  "muestras": 1000,
-  "reintentos": 3,
+  "muestras": 20000,
+  "reintentos": 10,
   "salto": 100,
-  "limitePool": 10
+  "limitePool": 20
 }

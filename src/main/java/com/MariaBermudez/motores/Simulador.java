@@ -35,19 +35,19 @@ public class Simulador {
             }
 
             long inicio = System.currentTimeMillis();
-            pestillo.countDown(); // Arrancan todos los hilos
+            pestillo.countDown(); // Arrancan todos los hilos al mismo tiempo
             executor.close();    // Espera a que todos terminen
             long fin = System.currentTimeMillis();
 
-            // --- CÁLCULOS DE EFICACIA ---
+            // Calculos de eficacia: porcentaje de exitos sobre el total
             double porcentajeExito = (exitos.get() * 100.0) / totalConsultas;
             boolean esEficaz = porcentajeExito >= 80.0;
 
-            System.out.println("\n--- RESULTADOS DE ESTA RÁFAGA ---");
+            System.out.println("\n--- RESULTADOS DE ESTA RAFAGA ---");
             System.out.println("Consultas totales: " + totalConsultas);
-            System.out.println("Éxitos: " + exitos.get() + " | Fallos: " + fallos.get());
-            System.out.printf("Porcentaje de Éxito: %.2f%%\n", porcentajeExito);
-            System.out.println("¿Es eficaz? (min 80%): " + (esEficaz ? "Si" : "NO "));
+            System.out.println("Exitos: " + exitos.get() + " | Fallos: " + fallos.get());
+            System.out.printf("Porcentaje de Exito: %.2f%%\n", porcentajeExito);
+            System.out.println("Es eficaz? (min 80%): " + (esEficaz ? "Si" : "NO "));
             System.out.println("Tiempo total: " + (fin - inicio) + "ms");
         }
     }

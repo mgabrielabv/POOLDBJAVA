@@ -1,4 +1,4 @@
-package com.MariaBermudez.modelos; // O el paquete que estés usando
+package com.MariaBermudez.modelos; // O el paquete que estes usando
 
 public record Ajustes(
         String url,

@@ -1,18 +1,17 @@
 package com.MariaBermudez.GUI;
-
 import java.awt.Color;
 import java.awt.Font;
 
 public class Estilos {
-    // Colores para el Dashboard
-    public static final Color FONDO = new Color(20, 15, 20);
-    public static final Color PANEL = new Color(35, 25, 35);
-    public static final Color ACCENT = new Color(255, 20, 147); // El Rosa Neón
-    public static final Color SUCCESS = new Color(0, 255, 150); // Verde menta
-    public static final Color TEXTO = new Color(245, 235, 240);
+    public static final Color BG = new Color(13, 14, 18);
+    public static final Color CARD = new Color(24, 25, 32);
+    public static final Color ACCENT = new Color(0, 191, 255);
+    public static final Color GREEN = new Color(50, 255, 150);
+    public static final Color RED = new Color(255, 80, 80);
+    public static final Color TEXT = new Color(240, 240, 240);
+    public static final Color SUBTEXT = new Color(140, 145, 160);
 
-    // Fuentes
-    public static final Font TITULO = new Font("Segoe UI", Font.BOLD, 18);
-    public static final Font NUMERO = new Font("Consolas", Font.BOLD, 60);
-    public static final Font MINI = new Font("Monospaced", Font.PLAIN, 11);
+    public static final Font LBL = new Font("Segoe UI", Font.BOLD, 13);
+    public static final Font BIG_NUM = new Font("JetBrains Mono", Font.BOLD, 24);
+    public static final Font MONO = new Font("Monospaced", Font.PLAIN, 12);
 }
