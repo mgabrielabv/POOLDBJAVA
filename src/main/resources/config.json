@@ -4,7 +4,7 @@
   "clave": "maria123",
   "query": "SELECT 1",
   "muestras": 20000,
-  "reintentos": 10,
+  "reintentos": 5,
   "salto": 100,
   "limitePool": 20
 }

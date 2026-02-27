@@ -7,33 +7,31 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class MotorPool implements EstrategiaConexion {
+    private static volatile MotorPool instancia;
     private final HikariDataSource dataSource;
 
-    public MotorPool(Ajustes ajustes) {
-        try {
-            HikariConfig config = new HikariConfig();
+    // Constructor singleton
+    private MotorPool(Ajustes ajustes) {
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName("org.postgresql.Driver");
+        config.setJdbcUrl(ajustes.url());
+        config.setUsername(ajustes.usuario());
+        config.setPassword(ajustes.clave());
+        config.setMaximumPoolSize(ajustes.limitePool());
+        config.setConnectionTimeout(10000);
 
-            // Fuerzamos el driver para evitar fallos al conectar
-            config.setDriverClassName("org.postgresql.Driver");
+        this.dataSource = new HikariDataSource(config);
+    }
 
-            config.setJdbcUrl(ajustes.url());
-            config.setUsername(ajustes.usuario());
-            config.setPassword(ajustes.clave());
-
-            // Ajustes de rendimiento del pool
-            config.setMaximumPoolSize(ajustes.limitePool());
-            config.setConnectionTimeout(10000); // 10 seg de espera
-            config.setPoolName("Pool-Maria-LaptopNueva");
-
-            this.dataSource = new HikariDataSource(config);
-            System.out.println("[SISTEMA] Pool de conexiones listo en esta maquina.");
-
-        } catch (Exception e) {
-            System.err.println("--- ERROR CRITICO AL INICIAR EL POOL ---");
-            // Indica si hubo algun error al configurar el pool
-            e.printStackTrace();
-            throw new RuntimeException("No se pudo iniciar el Pool: " + e.getMessage());
+    public static MotorPool getInstance(Ajustes ajustes) {
+        if (instancia == null) {
+            synchronized (MotorPool.class) {
+                if (instancia == null) {
+                    instancia = new MotorPool(ajustes);
+                }
+            }
         }
+        return instancia;
     }
 
     @Override
@@ -45,6 +43,9 @@ public class MotorPool implements EstrategiaConexion {
     public void cerrar() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
+        }
+        synchronized (MotorPool.class) {
+            instancia = null;
         }
     }
 }

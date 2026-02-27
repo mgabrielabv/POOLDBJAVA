@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public interface EstrategiaConexion {
     /**
-     * Este metodo será implementado por MotorRaw y MotorPool
+     * Este metodo sera implementado por MotorRaw y MotorPool
      */
     Connection obtenerConexion() throws SQLException;
 

@@ -53,14 +53,19 @@ public class Simulador {
     }
 
     private void realizarTarea(int id, AtomicInteger exitos, AtomicInteger fallos) {
+        String motorName = estrategia.getClass().getSimpleName();
+        String query = ajustes.query();
         try (var conn = estrategia.obtenerConexion();
-             var stmt = conn.prepareStatement(ajustes.query())) {
+             var stmt = conn.prepareStatement(query)) {
+            long t0 = System.currentTimeMillis();
             stmt.executeQuery();
+            long lat = System.currentTimeMillis() - t0;
             exitos.incrementAndGet();
-            RegistradorLog.escribir(id, "EXITO", 0, 0);
+            // Registrar con motor y query y latencia
+            RegistradorLog.escribir(id, "EXITO", lat, 0, motorName, query);
         } catch (Exception e) {
             fallos.incrementAndGet();
-            RegistradorLog.escribir(id, "FALLO: " + e.getMessage(), 0, 0);
+            RegistradorLog.escribir(id, "FALLO: " + e.getMessage(), 0, 0, motorName, query);
         }
     }
 }
